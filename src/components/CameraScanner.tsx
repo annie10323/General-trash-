@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Camera, Image as ImageIcon, RefreshCw, Zap, Sparkles, AlertCircle, Scan, ArrowRight, Loader2, UploadCloud, MapPin } from 'lucide-react';
 import { SAMPLE_ITEMS, SampleItem } from '../data/sampleItems';
 import { playCameraShutterSound } from '../utils/audio';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface CameraScannerProps {
   onAnalyze: (imageDataUrl: string, sampleDescription?: string) => void;
@@ -16,6 +17,7 @@ export const CameraScanner: React.FC<CameraScannerProps> = ({
   currentCountyName = '臺北市',
   onOpenCountySelect,
 }) => {
+  const { t } = useLanguage();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -185,7 +187,7 @@ export const CameraScanner: React.FC<CameraScannerProps> = ({
         <div className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300">
           <MapPin className="w-4 h-4 text-emerald-600 flex-shrink-0" />
           <span>
-            當前套用分類規範：<strong className="text-slate-900 dark:text-white font-extrabold">{currentCountyName}</strong>
+            {t('camera.appliedCountyRule')}<strong className="text-slate-900 dark:text-white font-extrabold">{currentCountyName}</strong>
           </span>
         </div>
         {onOpenCountySelect && (
@@ -194,7 +196,7 @@ export const CameraScanner: React.FC<CameraScannerProps> = ({
             onClick={onOpenCountySelect}
             className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1"
           >
-            <span>切換縣市</span>
+            <span>{t('camera.switchCounty')}</span>
             <ArrowRight className="w-3 h-3" />
           </button>
         )}
@@ -209,14 +211,14 @@ export const CameraScanner: React.FC<CameraScannerProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white">
-                直接選取相簿照片分析
+                {t('camera.uploadPhotoTitle')}
               </h3>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300">
-                可選相片 / 截圖
+                {t('camera.uploadBadge')}
               </span>
             </div>
             <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5 leading-relaxed">
-              從裝置相簿上傳垃圾或回收物照片，AI 立即判斷分類與源頭減廢方式！
+              {t('camera.uploadHint')}
             </p>
           </div>
         </div>
@@ -228,7 +230,7 @@ export const CameraScanner: React.FC<CameraScannerProps> = ({
           className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm shadow-lg shadow-emerald-600/25 active:scale-95 transition-all flex items-center justify-center gap-2 whitespace-nowrap cursor-pointer disabled:opacity-50"
         >
           <UploadCloud className="w-4 h-4" />
-          開啟相簿選取照片
+          {t('camera.uploadBtn')}
         </button>
       </div>
 
@@ -248,7 +250,7 @@ export const CameraScanner: React.FC<CameraScannerProps> = ({
         {isDragging && (
           <div className="absolute inset-0 bg-emerald-950/80 backdrop-blur-sm z-30 flex flex-col items-center justify-center text-white pointer-events-none">
             <UploadCloud className="w-14 h-14 text-emerald-400 mb-2 animate-bounce" />
-            <div className="text-lg font-bold">放開相片以開始 AI 分類分析</div>
+            <div className="text-lg font-bold">{t('camera.dropOverlay')}</div>
           </div>
         )}
 
@@ -272,7 +274,7 @@ export const CameraScanner: React.FC<CameraScannerProps> = ({
           <div className="w-full flex items-center justify-between text-white/90">
             <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-medium border border-white/10">
               <span className={`w-2 h-2 rounded-full ${isCameraActive ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
-              {isCameraActive ? 'AI 鏡頭運作中' : '等待鏡頭開啟'}
+              {isCameraActive ? t('camera.cameraActive') : t('camera.cameraWaiting')}
             </div>
 
             <div className="flex items-center gap-2 pointer-events-auto">
@@ -283,7 +285,7 @@ export const CameraScanner: React.FC<CameraScannerProps> = ({
                   className={`p-2.5 rounded-full backdrop-blur-md transition-all ${
                     torchOn ? 'bg-amber-400 text-slate-900 shadow-lg shadow-amber-400/30' : 'bg-black/40 text-white hover:bg-black/60'
                   }`}
-                  title="手電筒開關"
+                  title={t('camera.torch')}
                 >
                   <Zap className="w-4 h-4" />
                 </button>
@@ -293,7 +295,7 @@ export const CameraScanner: React.FC<CameraScannerProps> = ({
                 type="button"
                 onClick={switchCamera}
                 className="p-2.5 rounded-full bg-black/40 text-white hover:bg-black/60 backdrop-blur-md transition-all active:scale-95"
-                title="切換前後鏡頭"
+                title={t('camera.flipCamera')}
               >
                 <RefreshCw className="w-4 h-4" />
               </button>
@@ -313,13 +315,13 @@ export const CameraScanner: React.FC<CameraScannerProps> = ({
 
             {/* Hint text inside reticle */}
             <div className="text-center px-4 py-1.5 rounded-full bg-black/50 backdrop-blur-sm text-white/90 text-xs font-medium tracking-wide">
-              將待丟棄物品置於框內
+              {t('camera.reticleHint')}
             </div>
           </div>
 
           {/* Bottom Hint */}
           <div className="text-center text-white/80 text-xs bg-black/40 backdrop-blur-md px-4 py-1 rounded-full">
-            支援塑膠、紙容器、廚餘、有害電池、金屬、一般垃圾辨識
+            {t('camera.subtitle')}
           </div>
         </div>
 
@@ -383,7 +385,7 @@ export const CameraScanner: React.FC<CameraScannerProps> = ({
             <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center shadow-inner border border-slate-200 dark:border-slate-700">
               <ImageIcon className="w-6 h-6" />
             </div>
-            <span className="text-xs font-medium">相簿上傳</span>
+            <span className="text-xs font-medium">{t('camera.uploadBtn')}</span>
           </button>
         </div>
 
@@ -395,7 +397,7 @@ export const CameraScanner: React.FC<CameraScannerProps> = ({
             onClick={handleCapture}
             disabled={isAnalyzing || !isCameraActive}
             className="relative w-20 h-20 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center shadow-xl shadow-emerald-600/30 active:scale-90 hover:scale-105 transition-all duration-200 border-4 border-white dark:border-slate-900 disabled:opacity-50 disabled:pointer-events-none"
-            title="拍照掃描垃圾"
+            title={t('camera.captureBtn')}
           >
             {isAnalyzing ? (
               <Loader2 className="w-8 h-8 animate-spin" />
@@ -416,7 +418,7 @@ export const CameraScanner: React.FC<CameraScannerProps> = ({
             <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center shadow-inner border border-slate-200 dark:border-slate-700">
               <RefreshCw className="w-6 h-6" />
             </div>
-            <span className="text-xs font-medium">翻轉鏡頭</span>
+            <span className="text-xs font-medium">{t('camera.flipCamera')}</span>
           </button>
         </div>
       </div>
@@ -427,7 +429,7 @@ export const CameraScanner: React.FC<CameraScannerProps> = ({
           <div className="flex items-center gap-2">
             <span className="flex h-2 w-2 rounded-full bg-emerald-500" />
             <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">
-              手邊沒垃圾？點擊快速體驗 AI 掃描辨識：
+              {t('camera.quickSamplesTitle')}
             </h4>
           </div>
           <span className="text-xs text-slate-600 dark:text-slate-300">真實辨識測試</span>

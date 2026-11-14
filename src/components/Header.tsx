@@ -1,5 +1,7 @@
-import React from 'react';
-import { Camera, BookOpen, Award, History, Recycle, Sparkles, MapPin, Truck } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Camera, BookOpen, Award, History, Recycle, Sparkles, MapPin, Truck, Globe, ChevronDown } from 'lucide-react';
+import { useLanguage } from '../i18n/LanguageContext';
+import { Language } from '../i18n/translations';
 
 interface HeaderProps {
   activeTab: 'camera' | 'truck' | 'guide' | 'city' | 'quiz' | 'history';
@@ -14,13 +16,35 @@ export const Header: React.FC<HeaderProps> = ({
   ecoPoints,
   currentCountyName = '臺北市',
 }) => {
+  const { language, setLanguage, t } = useLanguage();
+  const [langMenuOpen, setLangMenuOpen] = useState(false);
+  const langMenuRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (langMenuRef.current && !langMenuRef.current.contains(e.target as Node)) {
+        setLangMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const languages: Array<{ code: Language; label: string; flag: string }> = [
+    { code: 'zh-TW', label: '繁體中文', flag: '🇹🇼' },
+    { code: 'en', label: 'English', flag: '🇺🇸' },
+    { code: 'ja', label: '日本語', flag: '🇯🇵' },
+  ];
+
+  const currentLangObj = languages.find((l) => l.code === language) || languages[0];
+
   const tabs = [
-    { id: 'camera', label: '鏡頭掃描', icon: Camera },
-    { id: 'truck', label: '垃圾車時間', icon: Truck },
-    { id: 'city', label: '各縣市規範', icon: MapPin },
-    { id: 'guide', label: '分類圖鑑', icon: BookOpen },
-    { id: 'quiz', label: '環保測驗', icon: Award },
-    { id: 'history', label: '辨識紀錄', icon: History },
+    { id: 'camera', labelKey: 'nav.camera', icon: Camera },
+    { id: 'truck', labelKey: 'nav.truck', icon: Truck },
+    { id: 'city', labelKey: 'nav.city', icon: MapPin },
+    { id: 'guide', labelKey: 'nav.guide', icon: BookOpen },
+    { id: 'quiz', labelKey: 'nav.quiz', icon: Award },
+    { id: 'history', labelKey: 'nav.history', icon: History },
   ] as const;
 
   return (
@@ -44,7 +68,7 @@ export const Header: React.FC<HeaderProps> = ({
               </span>
             </div>
             <p className="text-[10px] text-slate-600 dark:text-slate-300 font-medium -mt-0.5">
-              智慧垃圾分類辨識助手
+              {t('header.subtitle')}
             </p>
           </div>
         </div>
@@ -66,19 +90,57 @@ export const Header: React.FC<HeaderProps> = ({
                 }`}
               >
                 <Icon className="w-4 h-4" />
-                <span>{tab.label}</span>
+                <span>{t(tab.labelKey)}</span>
               </button>
             );
           })}
         </nav>
 
-        {/* Right Action: County Indicator & Eco Points */}
-        <div className="flex items-center gap-2">
+        {/* Right Actions: Language, County & Eco Points */}
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* Language Switcher Dropdown */}
+          <div className="relative" ref={langMenuRef}>
+            <button
+              type="button"
+              onClick={() => setLangMenuOpen((prev) => !prev)}
+              title={t('header.langSelect')}
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold border border-slate-200 dark:border-slate-700 transition-colors shadow-2xs"
+            >
+              <Globe className="w-3.5 h-3.5 text-blue-500" />
+              <span>{currentLangObj.flag}</span>
+              <span className="hidden md:inline">{currentLangObj.label}</span>
+              <ChevronDown className="w-3 h-3 text-slate-400" />
+            </button>
+
+            {langMenuOpen && (
+              <div className="absolute right-0 mt-1.5 w-36 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl z-50 p-1 animate-in fade-in zoom-in-95 duration-100">
+                {languages.map((l) => (
+                  <button
+                    key={l.code}
+                    type="button"
+                    onClick={() => {
+                      setLanguage(l.code);
+                      setLangMenuOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-colors ${
+                      language === l.code
+                        ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400'
+                        : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    <span>{l.flag}</span>
+                    <span>{l.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* County quick-switch pill */}
           <button
             type="button"
             onClick={() => onTabChange('city')}
-            title="點擊切換所在縣市"
+            title={t('header.switchCountyTip')}
             className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold border border-slate-200 dark:border-slate-700 transition-colors shadow-2xs"
           >
             <MapPin className="w-3.5 h-3.5 text-emerald-500" />
@@ -91,7 +153,9 @@ export const Header: React.FC<HeaderProps> = ({
             <span className="text-xs font-extrabold text-emerald-700 dark:text-emerald-300">
               {ecoPoints}
             </span>
-            <span className="text-[10px] text-emerald-600/80 font-bold hidden xs:inline">點</span>
+            <span className="text-[10px] text-emerald-600/80 font-bold hidden xs:inline">
+              {t('nav.points')}
+            </span>
           </div>
         </div>
       </div>
@@ -113,7 +177,7 @@ export const Header: React.FC<HeaderProps> = ({
               }`}
             >
               <Icon className="w-4 h-4" />
-              <span className="text-[10px]">{tab.label}</span>
+              <span className="text-[10px]">{t(tab.labelKey)}</span>
             </button>
           );
         })}

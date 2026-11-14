@@ -623,3 +623,4 @@ export function getCountyTruckSchedule(countyId: string, countyName: string): Co
     ],
   };
 }
+

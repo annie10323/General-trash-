@@ -20,6 +20,8 @@ import {
 import { TAIWAN_COUNTIES } from '../data/countyData';
 import { getCountyTruckSchedule } from '../data/truckScheduleData';
 import { TruckRoutePoint, CountyTruckSchedule } from '../types';
+import { useLanguage } from '../i18n/LanguageContext';
+import { Language } from '../i18n/translations';
 
 interface TruckTrackerSectionProps {
   currentCountyId: string;
@@ -32,6 +34,7 @@ export const TruckTrackerSection: React.FC<TruckTrackerSectionProps> = ({
   currentCountyId,
   onSelectCounty,
 }) => {
+  const { language, t } = useLanguage();
   const [selectedDistrict, setSelectedDistrict] = useState<string>('ALL');
   const [filterType, setFilterType] = useState<'ALL' | 'FIXED_POINT' | 'REGULAR_ROUTE'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
@@ -73,35 +76,39 @@ export const TruckTrackerSection: React.FC<TruckTrackerSectionProps> = ({
 
   // Day of week check (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
   const currentDay = currentTime.getDay();
-  const dayNames = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
-  const currentDayName = dayNames[currentDay];
+  const dayNamesMap: Record<Language, string[]> = {
+    'zh-TW': ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'],
+    'en': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+    'ja': ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'],
+  };
+  const currentDayName = (dayNamesMap[language] || dayNamesMap['zh-TW'])[currentDay];
   const isTodayOff = schedule.offDays.includes(currentDay);
 
   // Today's recycling rule determination
   const todayRecycleInfo = useMemo(() => {
     if (isTodayOff) {
-      return { type: 'NONE', title: '本日清潔隊全日停收', desc: schedule.offDaysText };
+      return { type: 'NONE', title: t('truck.statusOff'), desc: schedule.offDaysText };
     }
     if (schedule.todayRecycleType.planeDays.includes(currentDay)) {
       return {
         type: 'PLANE',
-        title: '今日資收重點：【平面類】回收',
-        desc: '紙類（紙箱/報紙）、乾淨塑膠袋、舊衣布料等平面回收物。',
+        title: t('truck.planeRecycleTitle'),
+        desc: t('truck.planeRecycleDesc'),
       };
     }
     if (schedule.todayRecycleType.solidDays.includes(currentDay)) {
       return {
         type: 'SOLID',
-        title: '今日資收重點：【立體類】回收',
-        desc: '寶特瓶、塑膠容器、鐵鋁罐、玻璃瓶、乾淨保麗龍等立體容器。',
+        title: t('truck.solidRecycleTitle'),
+        desc: t('truck.solidRecycleDesc'),
       };
     }
     return {
       type: 'STANDARD',
-      title: '今日全項目清運',
-      desc: '一般垃圾、生熟廚餘與各類資源回收車隨行清運。',
+      title: t('truck.standardRecycleTitle'),
+      desc: t('truck.standardRecycleDesc'),
     };
-  }, [currentDay, isTodayOff, schedule]);
+  }, [currentDay, isTodayOff, schedule, t]);
 
   // Filtered route points
   const filteredRoutes = useMemo(() => {
@@ -182,18 +189,18 @@ export const TruckTrackerSection: React.FC<TruckTrackerSectionProps> = ({
 
     if (diff > 15) {
       return {
-        badge: '預計準時抵達',
+        badge: t('truck.statusOnTime'),
         color: 'bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-200 border-blue-200 dark:border-blue-800',
       };
     }
     if (diff >= -10 && diff <= 15) {
       return {
-        badge: '🔔 即將進站 / 停靠中',
+        badge: t('truck.statusArriving'),
         color: 'bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-200 border-amber-300 dark:border-amber-700 animate-pulse',
       };
     }
     return {
-      badge: '✓ 今日已通過',
+      badge: t('truck.statusPassed'),
       color: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700',
     };
   };
@@ -206,7 +213,7 @@ export const TruckTrackerSection: React.FC<TruckTrackerSectionProps> = ({
           <div className="flex items-center gap-2">
             <Truck className="w-5 h-5 text-sky-200" />
             <span className="text-xs font-bold tracking-widest text-sky-100 uppercase">
-              智慧生活 • 垃圾車即時動態與清運時程
+              {t('truck.tagline')}
             </span>
           </div>
 
@@ -222,13 +229,13 @@ export const TruckTrackerSection: React.FC<TruckTrackerSectionProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h2 className="text-2xl sm:text-3xl font-black tracking-tight flex items-center gap-2">
-              <span>{countyObj.name} 垃圾車動態追蹤</span>
+              <span>{countyObj.name} {t('truck.title')}</span>
               <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-white/20 text-white">
-                {countyObj.bagPolicy === 'DEDICATED_BAG' ? '專用垃圾袋' : '隨水費徵收'}
+                {countyObj.bagPolicy === 'DEDICATED_BAG' ? t('truck.dedicatedBag') : t('truck.waterFee')}
               </span>
             </h2>
             <p className="text-sky-100 text-xs sm:text-sm mt-1 max-w-xl leading-relaxed">
-              即時查詢各鄉鎮市區垃圾車到站時間、日間定點早鳥專區、今日收運狀況與官方即時 GPS 定位！
+              {t('truck.subtitle')}
             </p>
           </div>
 
@@ -266,11 +273,11 @@ export const TruckTrackerSection: React.FC<TruckTrackerSectionProps> = ({
             )}
             <div>
               <div className="font-extrabold text-sm text-white">
-                {isTodayOff ? '⚠️ 今日全縣市垃圾車停收！' : '✅ 今日正常清運垃圾與廚餘'}
+                {isTodayOff ? t('truck.statusOff') : t('truck.statusActive')}
               </div>
               <div className="text-xs opacity-90 mt-0.5 leading-relaxed">
                 {isTodayOff
-                  ? `${schedule.offDaysText}。請勿於停收期間提前將垃圾袋拿至路邊堆置，以免依廢清法開罰。`
+                  ? `${schedule.offDaysText}。${t('truck.offDaysWarning')}`
                   : schedule.collectionDaysSummary}
               </div>
             </div>
@@ -298,7 +305,7 @@ export const TruckTrackerSection: React.FC<TruckTrackerSectionProps> = ({
               <span>{upcomingInfo.message}</span>
             </div>
             <span className="text-[11px] px-2 py-0.5 rounded-md bg-amber-900 text-amber-100 font-black">
-              即將抵達
+              {t('truck.countdownArrived')}
             </span>
           </div>
         )}
@@ -314,7 +321,7 @@ export const TruckTrackerSection: React.FC<TruckTrackerSectionProps> = ({
             </h3>
           </div>
           <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
-            {schedule.officialAppTip || '點擊直接開啟縣市環保局官方清運動態地圖，查詢精確 GPS 即時車速、門牌號碼定位與車輛到站廣播。'}
+            {schedule.officialAppTip || t('truck.gpsMapDesc')}
           </p>
         </div>
 
@@ -325,7 +332,7 @@ export const TruckTrackerSection: React.FC<TruckTrackerSectionProps> = ({
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-blue-600/30 active:scale-95 transition-all flex-shrink-0 cursor-pointer"
           >
-            <span>開啟官方即時 GPS 定位地圖</span>
+            <span>{t('truck.openGpsBtn')}</span>
             <ExternalLink className="w-4 h-4" />
           </a>
         )}
@@ -335,21 +342,21 @@ export const TruckTrackerSection: React.FC<TruckTrackerSectionProps> = ({
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-5 shadow-sm space-y-3.5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <h4 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
-            <span>清運站點與停靠時刻查詢</span>
+            <span>{t('truck.queryTitle')}</span>
             <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-              {filteredRoutes.length} 個班次站點
+              {filteredRoutes.length} {t('truck.stopsCount')}
             </span>
           </h4>
 
           {/* District Selector */}
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-slate-600 dark:text-slate-300">行政區：</span>
+            <span className="text-xs font-bold text-slate-600 dark:text-slate-300">{t('truck.districtLabel')}</span>
             <select
               value={selectedDistrict}
               onChange={(e) => setSelectedDistrict(e.target.value)}
               className="text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 focus:outline-hidden cursor-pointer"
             >
-              <option value="ALL">全部行政區</option>
+              <option value="ALL">{t('truck.allDistricts')}</option>
               {schedule.districts.map((dist) => (
                 <option key={dist} value={dist}>
                   {dist}
@@ -367,7 +374,7 @@ export const TruckTrackerSection: React.FC<TruckTrackerSectionProps> = ({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="搜尋清運站名或路名（如：大安路、逢甲路、文化路...）"
+              placeholder={t('truck.searchPlaceholder')}
               className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -382,7 +389,7 @@ export const TruckTrackerSection: React.FC<TruckTrackerSectionProps> = ({
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
               }`}
             >
-              全部站點
+              {t('truck.filterAll')}
             </button>
             <button
               type="button"
@@ -393,7 +400,7 @@ export const TruckTrackerSection: React.FC<TruckTrackerSectionProps> = ({
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
               }`}
             >
-              🌅 晨間定點（免追車）
+              {t('truck.filterMorning')}
             </button>
             <button
               type="button"
@@ -404,12 +411,11 @@ export const TruckTrackerSection: React.FC<TruckTrackerSectionProps> = ({
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
               }`}
             >
-              🌙 夜間沿線
+              {t('truck.filterEvening')}
             </button>
           </div>
         </div>
       </div>
-
       {/* Routes & Stops Cards */}
       <div className="space-y-3">
         {sortedRoutes.map((route) => {
@@ -514,7 +520,7 @@ export const TruckTrackerSection: React.FC<TruckTrackerSectionProps> = ({
       <div className="bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-6 space-y-3 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
         <div className="flex items-center gap-2 font-black text-slate-900 dark:text-white text-base">
           <Info className="w-5 h-5 text-blue-600" />
-          <span>上班族與民眾丟垃圾便民須知</span>
+          <span>{t('truck.commuterTipsTitle')}</span>
         </div>
         <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <li className="flex items-start gap-2 bg-white dark:bg-slate-800 p-3 rounded-2xl border border-slate-200/60 dark:border-slate-700/60">
@@ -522,8 +528,8 @@ export const TruckTrackerSection: React.FC<TruckTrackerSectionProps> = ({
               1
             </span>
             <span>
-              <strong>早鳥定時定點收運：</strong>
-              若平日加班無法配合傍晚夜間垃圾車，各縣市主要交通樞紐均設有 06:30 ~ 08:30 的晨間定點專車，可多加利用。
+              <strong>{t('truck.tip1Title')}</strong>
+              {t('truck.tip1Desc')}
             </span>
           </li>
           <li className="flex items-start gap-2 bg-white dark:bg-slate-800 p-3 rounded-2xl border border-slate-200/60 dark:border-slate-700/60">
@@ -531,8 +537,8 @@ export const TruckTrackerSection: React.FC<TruckTrackerSectionProps> = ({
               2
             </span>
             <span>
-              <strong>垃圾不落地規範：</strong>
-              請於聽到垃圾車音樂響起或車輛停妥後再外出丟棄，嚴禁提早將垃圾袋置於路邊，環保局稽查人員將依法開罰最高 6,000 元。
+              <strong>{t('truck.tip2Title')}</strong>
+              {t('truck.tip2Desc')}
             </span>
           </li>
           <li className="flex items-start gap-2 bg-white dark:bg-slate-800 p-3 rounded-2xl border border-slate-200/60 dark:border-slate-700/60">
@@ -540,8 +546,8 @@ export const TruckTrackerSection: React.FC<TruckTrackerSectionProps> = ({
               3
             </span>
             <span>
-              <strong>高壓瓶罐請單獨交付：</strong>
-              卡式瓦斯罐、殺蟲劑、定型液等高壓氣體容器，務必在通風處排空內容物後，獨立交由資收人員，切勿投入垃圾車壓縮機以防爆炸起火。
+              <strong>{t('truck.tip3Title')}</strong>
+              {t('truck.tip3Desc')}
             </span>
           </li>
           <li className="flex items-start gap-2 bg-white dark:bg-slate-800 p-3 rounded-2xl border border-slate-200/60 dark:border-slate-700/60">
@@ -549,8 +555,8 @@ export const TruckTrackerSection: React.FC<TruckTrackerSectionProps> = ({
               4
             </span>
             <span>
-              <strong>大宗廢棄物提前預約：</strong>
-              彈簧床墊、沙發、大型木櫃等大宗物品，需提前至少 1~3 天撥打清潔隊電話完成登記預約後方能載運。
+              <strong>{t('truck.tip4Title')}</strong>
+              {t('truck.tip4Desc')}
             </span>
           </li>
         </ul>
@@ -558,3 +564,4 @@ export const TruckTrackerSection: React.FC<TruckTrackerSectionProps> = ({
     </div>
   );
 };
+

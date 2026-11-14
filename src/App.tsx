@@ -10,11 +10,13 @@ import { ScanHistory } from './components/ScanHistory';
 import { WasteAnalysisResult, ScanHistoryItem } from './types';
 import { TAIWAN_COUNTIES } from './data/countyData';
 import { AlertCircle, CheckCircle2, ShieldCheck, Sparkles } from 'lucide-react';
+import { useLanguage } from './i18n/LanguageContext';
 
 const STORAGE_KEY = 'ecosort_scan_history_v1';
 const COUNTY_STORAGE_KEY = 'ecosort_selected_county_v1';
 
 export default function App() {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'camera' | 'truck' | 'city' | 'guide' | 'quiz' | 'history'>('camera');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [currentResult, setCurrentResult] = useState<WasteAnalysisResult | null>(null);
@@ -308,10 +310,10 @@ export default function App() {
           <div className="space-y-6">
             <div className="text-center max-w-md mx-auto mb-2">
               <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-                AI 垃圾分類與減量分析
+                {t('camera.title')}
               </h1>
               <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1">
-                支援相簿照片直接選取分析或鏡頭即時掃描，AI 結合各縣市地方清運規定給予精準投遞建議
+                {t('camera.subtitle')}
               </p>
             </div>
 
@@ -369,7 +371,7 @@ export default function App() {
 
       {/* Footer Info */}
       <footer className="mt-auto border-t border-slate-200 dark:border-slate-800/80 py-4 text-center text-xs text-slate-600 dark:text-slate-300">
-        <p>EcoSort AI • 遵循行政院環境保護署資源回收與源頭減量指引 • 讓垃圾變資源</p>
+        <p>{t('footer.text')}</p>
       </footer>
     </div>
   );
