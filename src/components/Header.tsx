@@ -1,15 +1,22 @@
 import React from 'react';
-import { Camera, BookOpen, Award, History, Recycle, Sparkles } from 'lucide-react';
+import { Camera, BookOpen, Award, History, Recycle, Sparkles, MapPin } from 'lucide-react';
 
 interface HeaderProps {
-  activeTab: 'camera' | 'guide' | 'quiz' | 'history';
-  onTabChange: (tab: 'camera' | 'guide' | 'quiz' | 'history') => void;
+  activeTab: 'camera' | 'guide' | 'city' | 'quiz' | 'history';
+  onTabChange: (tab: 'camera' | 'guide' | 'city' | 'quiz' | 'history') => void;
   ecoPoints: number;
+  currentCountyName?: string;
 }
 
-export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange, ecoPoints }) => {
+export const Header: React.FC<HeaderProps> = ({
+  activeTab,
+  onTabChange,
+  ecoPoints,
+  currentCountyName = '臺北市',
+}) => {
   const tabs = [
     { id: 'camera', label: '鏡頭掃描', icon: Camera },
+    { id: 'city', label: '各縣市規範', icon: MapPin },
     { id: 'guide', label: '分類圖鑑', icon: BookOpen },
     { id: 'quiz', label: '環保測驗', icon: Award },
     { id: 'history', label: '辨識紀錄', icon: History },
@@ -51,7 +58,7 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange, ecoPoint
                 key={tab.id}
                 type="button"
                 onClick={() => onTabChange(tab.id)}
-                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
                   isActive
                     ? 'bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-sm'
                     : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
@@ -64,18 +71,32 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange, ecoPoint
           })}
         </nav>
 
-        {/* Eco Points Badge */}
-        <div className="flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5 rounded-full shadow-xs">
-          <Sparkles className="w-4 h-4 text-emerald-500" />
-          <span className="text-xs font-extrabold text-emerald-700 dark:text-emerald-300">
-            {ecoPoints}
-          </span>
-          <span className="text-[10px] text-emerald-600/80 font-bold">點數</span>
+        {/* Right Action: County Indicator & Eco Points */}
+        <div className="flex items-center gap-2">
+          {/* County quick-switch pill */}
+          <button
+            type="button"
+            onClick={() => onTabChange('city')}
+            title="點擊切換所在縣市"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold border border-slate-200 dark:border-slate-700 transition-colors shadow-2xs"
+          >
+            <MapPin className="w-3.5 h-3.5 text-emerald-500" />
+            <span className="max-w-[70px] truncate">{currentCountyName}</span>
+          </button>
+
+          {/* Eco Points Badge */}
+          <div className="flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5 rounded-full shadow-xs">
+            <Sparkles className="w-4 h-4 text-emerald-500" />
+            <span className="text-xs font-extrabold text-emerald-700 dark:text-emerald-300">
+              {ecoPoints}
+            </span>
+            <span className="text-[10px] text-emerald-600/80 font-bold hidden xs:inline">點</span>
+          </div>
         </div>
       </div>
 
       {/* Mobile Tab Navigation Bar */}
-      <div className="sm:hidden flex items-center justify-around border-t border-slate-200/60 dark:border-slate-800 px-2 py-1.5">
+      <div className="sm:hidden flex items-center justify-around border-t border-slate-200/60 dark:border-slate-800 px-1 py-1.5 overflow-x-auto scrollbar-none">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -84,7 +105,7 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange, ecoPoint
               key={tab.id}
               type="button"
               onClick={() => onTabChange(tab.id)}
-              className={`flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-all ${
+              className={`flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-xl transition-all whitespace-nowrap ${
                 isActive
                   ? 'text-emerald-600 dark:text-emerald-400 font-bold'
                   : 'text-slate-600 dark:text-slate-300 font-medium'

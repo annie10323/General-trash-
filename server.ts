@@ -81,7 +81,7 @@ const SYSTEM_INSTRUCTION = `你是一位精通垃圾分類與資源回收的權�
 // 1. API: Classify Waste from Image
 app.post('/api/classify', async (req, res) => {
   try {
-    const { imageBase64, mimeType = 'image/jpeg', region = 'tw', userPrompt } = req.body;
+    const { imageBase64, mimeType = 'image/jpeg', region = 'tw', userPrompt, county, countyName } = req.body;
 
     if (!imageBase64) {
       return res.status(400).json({ error: '請提供要辨識的物品圖片' });
@@ -90,9 +90,13 @@ app.post('/api/classify', async (req, res) => {
     // Clean base64 data URL prefix if present
     const cleanBase64 = imageBase64.replace(/^data:image\/[a-zA-Z0-9+]+;base64,/, '');
 
+    const targetCounty = countyName || county || '臺北市';
+    const countyGuideline = `使用者目前位於台灣【${targetCounty}】。請依據【${targetCounty}】的地方環保局規範進行說明（例如：雙北需使用防偽專用垃圾袋、台中市區分綠桶生廚餘發電與黃桶熟廚餘養豬、彰化縣嚴格破袋稽查、多數中南部縣市隨水費徵收、各離島垃圾海運回台等）。請在 summary、disposalSteps 或 warningNote 中點名【${targetCounty}】的丟棄提醒與注意事項。`;
+
     const promptText = `請分析這張照片中的垃圾/廢棄物。
 辨識物品名稱、主要材質、應投遞的正確垃圾桶類別、拆解分解各部件的丟棄方式（例如瓶身、瓶蓋、標籤、吸管各丟哪裡）、清洗處置步驟、常見錯誤觀念、環保減碳小知識，以及「日常生活中可用什麼方式減少該項垃圾產生（源頭減量、環保替代方案、重複使用等實用撇步）」。
 ${userPrompt ? `使用者補充說明: "${userPrompt}"` : ''}
+${countyGuideline}
 ${region === 'jp' ? '請依日本垃圾分類邏輯（可燃、不燃、資源等）說明。' : '請依台灣環保署資源回收分類規範說明。'}`;
 
     const candidateModels = ['gemini-3.8-flash', 'gemini-flash-latest'];

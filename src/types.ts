@@ -67,3 +67,37 @@ export interface QuizQuestion {
   explanation: string;
   categoryName: string;
 }
+
+export type TaiwanRegion = 'NORTH' | 'CENTRAL' | 'SOUTH' | 'EAST' | 'ISLAND';
+
+export interface CountyCategoryDetail {
+  id: string;
+  name: string;
+  binColor: 'blue' | 'yellow' | 'red' | 'green' | 'amber' | 'stone' | 'purple';
+  summary: string;
+  acceptedItems: string[];
+  rejectedItems: string[];
+  preparationTip: string;
+  scheduleTip?: string;
+  specialWarning?: string;
+}
+
+export interface CountyInfo {
+  id: string;
+  name: string;
+  shortName: string;
+  englishName: string;
+  region: TaiwanRegion;
+  regionName: string;
+  bagPolicy: 'DEDICATED_BAG' | 'WATER_FEE';
+  bagPolicyDesc: string;
+  foodWastePolicy: string;
+  scheduleSummary: string;
+  highlightRules: string[];
+  categories: CountyCategoryDetail[];
+  officialContact: {
+    department: string;
+    phone: string;
+    websiteUrl?: string;
+  };
+}

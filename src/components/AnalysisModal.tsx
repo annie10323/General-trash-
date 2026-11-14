@@ -17,6 +17,7 @@ import {
   ShieldCheck,
   Flame,
   Droplets,
+  MapPin,
 } from 'lucide-react';
 import { WasteAnalysisResult } from '../types';
 import { speakText, stopSpeaking, playSuccessChime } from '../utils/audio';
@@ -27,6 +28,7 @@ interface AnalysisModalProps {
   onClose: () => void;
   onCompleteSorting: () => void;
   isCompleted?: boolean;
+  currentCountyName?: string;
 }
 
 export const AnalysisModal: React.FC<AnalysisModalProps> = ({
@@ -35,6 +37,7 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
   onClose,
   onCompleteSorting,
   isCompleted = false,
+  currentCountyName = '臺北市',
 }) => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [checkedSteps, setCheckedSteps] = useState<number[]>([]);
@@ -223,8 +226,14 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
                 <Recycle className="w-6 h-6" />
               </div>
               <div>
-                <div className="text-xs font-semibold text-slate-600 dark:text-slate-300">
-                  正確丟棄分類
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
+                  <span>正確丟棄分類</span>
+                  {currentCountyName && (
+                    <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300">
+                      <MapPin className="w-2.5 h-2.5" />
+                      {currentCountyName}
+                    </span>
+                  )}
                 </div>
                 <div className={`text-xl sm:text-2xl font-black ${theme.text}`}>
                   {result.categoryName}

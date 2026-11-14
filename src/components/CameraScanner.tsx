@@ -1,14 +1,21 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Camera, Image as ImageIcon, RefreshCw, Zap, Sparkles, AlertCircle, Scan, ArrowRight, Loader2, UploadCloud } from 'lucide-react';
+import { Camera, Image as ImageIcon, RefreshCw, Zap, Sparkles, AlertCircle, Scan, ArrowRight, Loader2, UploadCloud, MapPin } from 'lucide-react';
 import { SAMPLE_ITEMS, SampleItem } from '../data/sampleItems';
 import { playCameraShutterSound } from '../utils/audio';
 
 interface CameraScannerProps {
   onAnalyze: (imageDataUrl: string, sampleDescription?: string) => void;
   isAnalyzing: boolean;
+  currentCountyName?: string;
+  onOpenCountySelect?: () => void;
 }
 
-export const CameraScanner: React.FC<CameraScannerProps> = ({ onAnalyze, isAnalyzing }) => {
+export const CameraScanner: React.FC<CameraScannerProps> = ({
+  onAnalyze,
+  isAnalyzing,
+  currentCountyName = '臺北市',
+  onOpenCountySelect,
+}) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -172,6 +179,26 @@ export const CameraScanner: React.FC<CameraScannerProps> = ({ onAnalyze, isAnaly
         className="hidden"
         onChange={handleFileUpload}
       />
+
+      {/* Current County Guideline Pill */}
+      <div className="mb-3 flex items-center justify-between bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-2.5 rounded-2xl shadow-2xs">
+        <div className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300">
+          <MapPin className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+          <span>
+            當前套用分類規範：<strong className="text-slate-900 dark:text-white font-extrabold">{currentCountyName}</strong>
+          </span>
+        </div>
+        {onOpenCountySelect && (
+          <button
+            type="button"
+            onClick={onOpenCountySelect}
+            className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1"
+          >
+            <span>切換縣市</span>
+            <ArrowRight className="w-3 h-3" />
+          </button>
+        )}
+      </div>
 
       {/* Prominent Direct Album Photo Analysis Banner */}
       <div className="mb-4 bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-blue-500/10 dark:from-emerald-950/40 dark:to-blue-950/40 p-4 sm:p-5 rounded-3xl border border-emerald-200/90 dark:border-emerald-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 shadow-sm">
