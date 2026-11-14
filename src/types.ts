@@ -101,3 +101,32 @@ export interface CountyInfo {
     websiteUrl?: string;
   };
 }
+
+export interface TruckRoutePoint {
+  id: string;
+  spotName: string;
+  address: string;
+  district: string;
+  arrivalTime: string;
+  type: 'FIXED_POINT' | 'REGULAR_ROUTE';
+  collectedItems: string[];
+  notes?: string;
+}
+
+export interface CountyTruckSchedule {
+  countyId: string;
+  countyName: string;
+  offDays: number[];
+  offDaysText: string;
+  collectionDaysSummary: string;
+  todayRecycleType: {
+    planeDays: number[];
+    solidDays: number[];
+    specialNotes: string;
+  };
+  officialTrackerName: string;
+  officialTrackerUrl: string;
+  officialAppTip?: string;
+  districts: string[];
+  routes: TruckRoutePoint[];
+}

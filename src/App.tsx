@@ -4,6 +4,7 @@ import { CameraScanner } from './components/CameraScanner';
 import { AnalysisModal } from './components/AnalysisModal';
 import { GuideSection } from './components/GuideSection';
 import { CountySection } from './components/CountySection';
+import { TruckTrackerSection } from './components/TruckTrackerSection';
 import { QuizSection } from './components/QuizSection';
 import { ScanHistory } from './components/ScanHistory';
 import { WasteAnalysisResult, ScanHistoryItem } from './types';
@@ -14,7 +15,7 @@ const STORAGE_KEY = 'ecosort_scan_history_v1';
 const COUNTY_STORAGE_KEY = 'ecosort_selected_county_v1';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'camera' | 'guide' | 'city' | 'quiz' | 'history'>('camera');
+  const [activeTab, setActiveTab] = useState<'camera' | 'truck' | 'city' | 'guide' | 'quiz' | 'history'>('camera');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [currentResult, setCurrentResult] = useState<WasteAnalysisResult | null>(null);
   const [currentImage, setCurrentImage] = useState<string>('');
@@ -323,10 +324,21 @@ export default function App() {
           </div>
         )}
 
+        {activeTab === 'truck' && (
+          <TruckTrackerSection
+            currentCountyId={selectedCountyId}
+            onSelectCounty={(id) => setSelectedCountyId(id)}
+          />
+        )}
+
         {activeTab === 'city' && (
           <CountySection
             currentCountyId={selectedCountyId}
             onSelectCounty={(id) => setSelectedCountyId(id)}
+            onTrackTruck={(id) => {
+              setSelectedCountyId(id);
+              setActiveTab('truck');
+            }}
           />
         )}
 

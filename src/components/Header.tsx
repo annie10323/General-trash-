@@ -1,9 +1,9 @@
 import React from 'react';
-import { Camera, BookOpen, Award, History, Recycle, Sparkles, MapPin } from 'lucide-react';
+import { Camera, BookOpen, Award, History, Recycle, Sparkles, MapPin, Truck } from 'lucide-react';
 
 interface HeaderProps {
-  activeTab: 'camera' | 'guide' | 'city' | 'quiz' | 'history';
-  onTabChange: (tab: 'camera' | 'guide' | 'city' | 'quiz' | 'history') => void;
+  activeTab: 'camera' | 'truck' | 'guide' | 'city' | 'quiz' | 'history';
+  onTabChange: (tab: 'camera' | 'truck' | 'guide' | 'city' | 'quiz' | 'history') => void;
   ecoPoints: number;
   currentCountyName?: string;
 }
@@ -16,6 +16,7 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const tabs = [
     { id: 'camera', label: '鏡頭掃描', icon: Camera },
+    { id: 'truck', label: '垃圾車時間', icon: Truck },
     { id: 'city', label: '各縣市規範', icon: MapPin },
     { id: 'guide', label: '分類圖鑑', icon: BookOpen },
     { id: 'quiz', label: '環保測驗', icon: Award },

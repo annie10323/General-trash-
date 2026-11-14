@@ -15,6 +15,7 @@ import {
   Layers,
   ChevronRight,
   BookmarkCheck,
+  Truck,
 } from 'lucide-react';
 import { TAIWAN_COUNTIES } from '../data/countyData';
 import { CountyInfo, CountyCategoryDetail, TaiwanRegion } from '../types';
@@ -22,11 +23,13 @@ import { CountyInfo, CountyCategoryDetail, TaiwanRegion } from '../types';
 interface CountySectionProps {
   currentCountyId: string;
   onSelectCounty: (countyId: string) => void;
+  onTrackTruck?: (countyId: string) => void;
 }
 
 export const CountySection: React.FC<CountySectionProps> = ({
   currentCountyId,
   onSelectCounty,
+  onTrackTruck,
 }) => {
   const [selectedRegion, setSelectedRegion] = useState<TaiwanRegion | 'ALL'>('ALL');
   const [searchTerm, setSearchTerm] = useState('');
@@ -134,7 +137,18 @@ export const CountySection: React.FC<CountySectionProps> = ({
             <span>返回縣市列表</span>
           </button>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            {onTrackTruck && (
+              <button
+                type="button"
+                onClick={() => onTrackTruck(activeCounty.id)}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-sm font-extrabold shadow-sm shadow-blue-600/30 transition-all cursor-pointer"
+              >
+                <Truck className="w-4 h-4" />
+                <span>追蹤本縣市垃圾車時間</span>
+              </button>
+            )}
+
             <button
               type="button"
               onClick={() => onSelectCounty(activeCounty.id)}
@@ -522,3 +536,4 @@ export const CountySection: React.FC<CountySectionProps> = ({
     </div>
   );
 };
+
